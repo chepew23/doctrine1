@@ -1,5 +1,5 @@
 {
-    "name": "fos1/doctrine1",
+    "name": "friendsofsymfony1/doctrine1",
     "type": "library",
     "description": "PHP5 Database ORM",
     "keywords": ["orm", "database"],
