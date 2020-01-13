@@ -559,4 +559,13 @@ class Doctrine_Migration
             return false;
         }
     }
+
+  /**
+   * @param int $initialVersion
+   */
+    public function initInVersion($initialVersion)
+    {
+      $this->_createMigrationTable();
+      $this->setCurrentVersion($initialVersion);
+    }
 }

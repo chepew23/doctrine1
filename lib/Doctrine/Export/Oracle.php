@@ -603,4 +603,43 @@ END;';
         
         return $query;
     }
+
+  /**
+   * Get declaration of a number of field in bulk
+   *
+   * @param array $fields  a multidimensional associative array.
+   *      The first dimension determines the field name, while the second
+   *      dimension is keyed with the name of the properties
+   *      of the field being declared as array indexes. Currently, the types
+   *      of supported field properties are as follows:
+   *
+   *      length
+   *          Integer value that determines the maximum length of the text
+   *          field. If this argument is missing the field should be
+   *          declared to have the longest length allowed by the DBMS.
+   *
+   *      default
+   *          Text value to be used as default for this field.
+   *
+   *      notnull
+   *          Boolean flag that indicates whether this field is constrained
+   *          to not be set to null.
+   *      charset
+   *          Text value with the default CHARACTER SET for this field.
+   *      collation
+   *          Text value with the default COLLATION for this field.
+   *      unique
+   *          unique constraint
+   *
+   * @return string
+   */
+  public function getFieldDeclarationList(array $fields)
+  {
+    foreach ($fields as $fieldName => $field) {
+      $query = $this->getDeclaration($fieldName, $field);
+
+      $queryFields[] = $query;
+    }
+    return implode(", \n", $queryFields);
+  }
 }

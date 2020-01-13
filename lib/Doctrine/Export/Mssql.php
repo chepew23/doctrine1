@@ -521,4 +521,84 @@ class Doctrine_Export_Mssql extends Doctrine_Export
         
         return $default;
     }
+
+  /**
+   * Get the stucture of a field into an array
+   *
+   * @param string    $table         name of the table on which the index is to be created
+   * @param string    $name          name of the index to be created
+   * @param array     $definition    associative array that defines properties of the index to be created.
+   * @see Doctrine_Export::createIndex()
+   * @return string
+   */
+  public function createIndexSql($table, $name, array $definition)
+  {
+    $table  = $this->conn->quoteIdentifier($table);
+    $name   = $this->conn->quoteIdentifier($name);
+    $type   = '';
+    $notnull = '';
+
+    if (isset($definition['type'])) {
+      switch (strtolower($definition['type'])) {
+        case 'unique':
+          $type = strtoupper($definition['type']) . ' ';
+          break;
+        default:
+          throw new Doctrine_Export_Exception(
+            'Unknown type ' . $definition['type'] . ' for index ' . $name . ' in table ' . $table
+          );
+      }
+    }
+
+    $query = 'CREATE ' . $type . 'INDEX ' . $name . ' ON ' . $table;
+
+    $fields = array();
+    foreach ($definition['fields'] as $field) {
+      $fields[] = $this->conn->quoteIdentifier($field);
+    }
+
+    if (isset($definition['notnull']) && !$definition['notnull']) {
+      $statement = '';
+
+      foreach ($fields as $field) {
+        if ($field !== reset($fields))
+        {
+          $statement .= ' AND ';
+        }
+
+        $statement .= $field . ' IS NOT NULL';
+      }
+
+      $notnull = !empty($statement) ? ' WHERE (' . $statement . ')' : '';
+    }
+
+    $query .= ' (' . implode(', ', $fields) . ')' . $notnull;
+
+    return $query;
+  }
+
+  /**
+   *
+   * getAdvancedForeignKeyOptions
+   * Return the FOREIGN KEY query section dealing with non-standard options
+   * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
+   *
+   * @param array $definition     foreign key definition
+   * @return string
+   */
+  public function getAdvancedForeignKeyOptions(array $definition)
+  {
+    // IMPORTANT: This is temporally solution, the problem is associated to model design.
+
+    $query = '';
+    if ( ! empty($definition['onUpdate'])) {
+      $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialAction('NO ACTION');
+    }
+
+    if ( ! empty($definition['onDelete'])) {
+      $query .= ' ON DELETE ' . $this->getForeignKeyReferentialAction('NO ACTION');
+    }
+
+    return $query;
+  }
 }

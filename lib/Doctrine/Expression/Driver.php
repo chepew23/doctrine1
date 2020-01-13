@@ -631,6 +631,11 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
 	    return 'COALESCE(' . join(', ', (array) $args) . ')';
     }
 
+    public function json_value($fieldName, $jsonString)
+    {
+      throw new Doctrine_Expression_Exception('JSON_VALUE operator is not supported by this database driver.');
+    }
+
     /**
      * __call
      *

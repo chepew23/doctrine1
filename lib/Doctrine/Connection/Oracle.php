@@ -71,6 +71,7 @@ class Doctrine_Connection_Oracle extends Doctrine_Connection_Common
         $this->setParam('varchar2_max_length', 4000);
         // Oracle's default unit for char data types is BYTE. For UTF8 string it is better to use CHAR
         $this->setParam('char_unit', null);
+        $this->setParam('trimspool', 'on');
     }
 
     /**
@@ -138,6 +139,50 @@ class Doctrine_Connection_Oracle extends Doctrine_Connection_Common
         return $this->_createLimitSubquery($query, $limit, $offset, $column);
     }
 
+
+  /**
+   * return version information about the server
+   *
+   * @param bool   $native  determines if the raw version string should be returned
+   * @return array    version information
+   */
+  public function getServerVersion($native = false)
+  {
+    if ($this->serverInfo) {
+      $serverInfo = $this->serverInfo;
+    } else {
+      $query      = "SELECT VERSION FROM PRODUCT_COMPONENT_VERSION WHERE PRODUCT LIKE '%Database%';";
+      $serverInfo = $this->fetchOne($query);
+    }
+    // cache server_info
+    $this->serverInfo = $serverInfo;
+    if ( ! $native) {
+      if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $serverInfo, $tmp)) {
+        $serverInfo = array(
+          'major' => $tmp[1],
+          'minor' => $tmp[2],
+          'patch' => $tmp[3],
+          'extra' => null,
+          'native' => $serverInfo,
+        );
+      } else {
+        $serverInfo = array(
+          'major' => null,
+          'minor' => null,
+          'patch' => null,
+          'extra' => null,
+          'native' => $serverInfo,
+        );
+      }
+    }
+    return $serverInfo;
+  }
+
+  /**
+   * @param string $info
+   *
+   * @return Doctrine_Connection_Oracle|void
+   */
     public function getTmpConnection($info)
     {
         return clone $this;

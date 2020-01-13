@@ -1488,7 +1488,11 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         // Catch any exceptions and delay the throwing of it so we can close
         // the tmp connection
         try {
-            $tmpConnection->export->createDatabase($info['dbname']);
+            if($info['scheme'] == "sqlsrv") {
+                $tmpConnection->export->createDatabase($info['Database']);
+            } else {
+                $tmpConnection->export->createDatabase($info['dbname']);
+            }
         } catch (Exception $e) {}
 
         // Close the temporary connection used to issue the drop database command
@@ -1521,7 +1525,11 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         // Catch any exceptions and delay the throwing of it so we can close
         // the tmp connection
         try {
-            $tmpConnection->export->dropDatabase($info['dbname']);
+            if($info['scheme'] == "sqlsrv") {
+                $tmpConnection->export->dropDatabase($info['Database']);
+            } else {
+                $tmpConnection->export->dropDatabase($info['dbname']);
+            }
         } catch (Exception $e) {}
 
         // Close the temporary connection used to issue the drop database command
@@ -1553,7 +1561,11 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             $pdoDsn .= 'unix_socket=' . $info['unix_socket'] . ';';
         }
 
-        $pdoDsn .= 'host=' . $info['host'];
+        if($info['scheme'] == "sqlsrv") {
+            $pdoDsn .= 'server=' . $info['server'];
+        } else {
+            $pdoDsn .= 'host=' . $info['host'];
+        }
 
         if ($info['port']) {
             $pdoDsn .= ';port=' . $info['port'];
@@ -1712,5 +1724,14 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         $this->_usedNames[$type][$key] = $name;
 
         return $name;
+    }
+
+    public function prepareOracleForLike()
+    {
+        if(in_array(strtolower($this->getDriverName()), ['oci', 'oci8', 'oracle', 'orcl']))
+        {
+            $this->exec('ALTER SESSION SET NLS_COMP=LINGUISTIC');
+            $this->exec('ALTER SESSION SET NLS_SORT=BINARY_AI');
+        }
     }
 }

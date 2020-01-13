@@ -1441,7 +1441,7 @@ abstract class Doctrine_Query_Abstract
     public function andWhereIn($expr, $params = array(), $not = false)
     {
         // if there's no params, return (else we'll get a WHERE IN (), invalid SQL)
-        if (isset($params) and is_array($params) and (count($params) == 0)) {
+        if (isset($params) && is_array($params) && (count($params) == 0)) {
             return $this;
         }
 
@@ -1474,11 +1474,31 @@ abstract class Doctrine_Query_Abstract
             return $this;
         }
 
-        if ($this->_hasDqlQueryPart('where')) {
-            $this->_addDqlQueryPart('where', 'OR', true);
-        }
+        if (count($params) >= 1000) {
+            $statement = "";
+            $chunk_params = array_chunk($params, 999);
 
-        return $this->_addDqlQueryPart('where', $this->_processWhereIn($expr, $params, $not), true);
+            foreach($chunk_params as $params) {
+
+                if ($params !== reset($chunk_params)) {
+                    $statement .= ' OR ';
+                }
+
+                $values = implode(',', $params);
+                $statement .= "{$expr} IN ({$values})";
+            }
+
+            $this->orWhere("({$statement})");
+
+            return $this;
+        } else {
+
+            if ($this->_hasDqlQueryPart('where')) {
+                $this->_addDqlQueryPart('where', 'OR', true);
+            }
+
+            return $this->_addDqlQueryPart('where', $this->_processWhereIn($expr, $params, $not), true);
+        }
     }
 
     /**

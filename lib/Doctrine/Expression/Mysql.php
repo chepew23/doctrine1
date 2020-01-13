@@ -157,4 +157,30 @@ class Doctrine_Expression_Mysql extends Doctrine_Expression_Driver
     {
         return 'SOUNDEX(' . $column . ')';
     }
+
+    /**
+     * Returns a native expression from JSON extract value
+     *
+     * @param $fieldName
+     * @param $jsonString
+     *
+     * @return string
+     * @throws Doctrine_Expression_Exception
+     */
+    public function json_value($fieldName, $jsonString)
+    {
+        $serverInfo = $this->conn->getServerVersion();
+
+        if ($serverInfo['major'] >= '5' && $serverInfo['minor'] >= '7')
+        {
+            $fieldName = trim($fieldName, "'");
+            $fieldName = "'$.{$fieldName}'";
+
+            return 'JSON_EXTRACT(' . $jsonString . ', ' . $fieldName . ')';
+        }
+        else
+        {
+            throw new Doctrine_Expression_Exception('JSON_VALUE operator is not supported by this database driver.');
+        }
+    }
 }

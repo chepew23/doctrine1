@@ -210,4 +210,48 @@ class Doctrine_Connection_Mysql extends Doctrine_Connection_Common
 
         return $this->exec($query, $params);
     }
+
+  /**
+   * return version information about the server
+   *
+   * @param bool   $native  determines if the raw version string should be returned
+   * @return array    version information
+   */
+  public function getServerVersion($native = false)
+  {
+    if ($this->serverInfo) {
+      $serverInfo = $this->serverInfo;
+    } else {
+      $query      = 'SELECT VERSION()';
+      $serverInfo = $this->fetchOne($query);
+    }
+
+    // cache server_info
+    $this->serverInfo = $serverInfo;
+    if ( ! $native)
+    {
+      if (preg_match('/([0-9]+)\.([0-9]+)\.([0-9]+)/', $serverInfo, $tmp))
+      {
+        $serverInfo = array(
+          'major' => $tmp[1],
+          'minor' => $tmp[2],
+          'patch' => $tmp[3],
+          'extra' => null,
+          'native' => $serverInfo,
+        );
+      }
+      else
+      {
+        $serverInfo = array(
+          'major' => null,
+          'minor' => null,
+          'patch' => null,
+          'extra' => null,
+          'native' => $serverInfo,
+        );
+      }
+    }
+
+    return $serverInfo;
+  }
 }

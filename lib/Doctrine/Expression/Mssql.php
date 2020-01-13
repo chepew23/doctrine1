@@ -132,4 +132,20 @@ class Doctrine_Expression_Mssql extends Doctrine_Expression_Driver
 
         return 'DATEPART(' . $datepart . ', ' . $date . ')';
     }
+
+    /**
+     * Returns a native expression from JSON extract value
+     *
+     * @param $fieldName
+     * @param $jsonString
+     *
+     * @return string
+     */
+    public function json_value ($fieldName, $jsonString)
+    {
+        $fieldName = trim($fieldName, "'");
+        $fieldName = "'$.{$fieldName}'";
+
+        return 'JSON_VALUE(' . $jsonString . ', ' . $fieldName . ')';
+    }
 }
