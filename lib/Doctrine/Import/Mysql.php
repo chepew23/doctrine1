@@ -230,7 +230,7 @@ class Doctrine_Import_Mysql extends Doctrine_Import
     public function listViews($database = null)
     {
         if (is_null($database)) {
-            $query = 'SELECT table_name FROM information_schema.VIEWS';
+            $query = 'SELECT table_name FROM information_schema.VIEWS WHERE TABLE_SCHEMA = DATABASE()';
         } else {
             $query = sprintf($this->sql['listViews'], ' FROM ' . $database);
         }

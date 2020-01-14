@@ -71,7 +71,12 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
      */
     protected function _doRollback()
     {
+        if($this->isMssqlDriverConnection()) {
         $this->conn->getDbh()->exec('ROLLBACK TRANSACTION');
+    }
+        else {
+            parent::_doRollback();
+        }
     }
     
     /**
@@ -79,7 +84,12 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
      */
     protected function _doCommit()
     {
+        if($this->isMssqlDriverConnection()) {
         $this->conn->getDbh()->exec('COMMIT TRANSACTION');
+    }
+        else {
+            parent::_doCommit();
+        }
     }
     
     /**
@@ -87,6 +97,22 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
      */
     protected function _doBeginTransaction()
     {
+        if($this->isMssqlDriverConnection()) {
         $this->conn->getDbh()->exec('BEGIN TRANSACTION');
+    }
+        else {
+            parent::_doBeginTransaction();
+        }
+    }
+
+    /**
+     * Returns true if the connection is using the MSSQL PDO extension, false otherwise
+     *
+     * @return boolean
+     * @throws Doctrine_Connection_Exception
+     */
+    public function isMssqlDriverConnection()
+    {
+        return (strtolower($this->conn->getAttribute(Doctrine_Core::ATTR_DRIVER_NAME)) == 'mssql');
     }
 }
