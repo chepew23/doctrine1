@@ -107,6 +107,7 @@ class Doctrine_DataDict_Mssql extends Doctrine_DataDict
                 return 'CHAR(' . strlen('YYYY-MM-DD HH:MM:SS') . ')';
             case 'float':
                 return 'FLOAT';
+            case 'double':
             case 'decimal':
                 $length = !empty($field['length']) ? $field['length'] : 18;
                 $scale = !empty($field['scale']) ? $field['scale'] : $this->conn->getAttribute(Doctrine_Core::ATTR_DECIMAL_PLACES);
@@ -146,8 +147,8 @@ class Doctrine_DataDict_Mssql extends Doctrine_DataDict
                     $type[] = 'boolean';
                 }
             break;
-            case 'date': 
-                $type[0] = 'date'; 
+            case 'date':
+                $type[0] = 'date';
             break;
             case 'datetime':
             case 'timestamp':
@@ -262,7 +263,7 @@ class Doctrine_DataDict_Mssql extends Doctrine_DataDict
         //$unsigned = (isset($field['unsigned']) && $field['unsigned']) ? ' UNSIGNED' : '';
         // MSSQL does not support the UNSIGNED keyword
         $unsigned = '';
-        $comment  = (isset($field['comment']) && $field['comment']) 
+        $comment  = (isset($field['comment']) && $field['comment'])
             ? " COMMENT " . $this->conn->quote($field['comment'], 'text') : '';
 
         $name = $this->conn->quoteIdentifier($name, true);
