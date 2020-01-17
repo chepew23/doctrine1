@@ -91,6 +91,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
         'mssql'    => 'Doctrine_Connection_Mssql',
         'dblib'    => 'Doctrine_Connection_Mssql',
         'odbc'     => 'Doctrine_Connection_Mssql',
+        'sqlsrv'   => 'Doctrine_Connection_Mssql',
         'mock'     => 'Doctrine_Connection_Mock'
     );
 
