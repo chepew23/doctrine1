@@ -127,7 +127,12 @@ class Doctrine_Connection_Sqlsrv extends Doctrine_Connection_Common
     {
       throw new Doctrine_Connection_Exception("LIMIT argument offset=$offset is not valid");
     }
-
+    if ($offset == 0) 
+    {
+      $query = preg_replace('/^SELECT( DISTINCT)?\s/i', 'SELECT\1 TOP ' . $limit . ' ', $query);
+    } 
+    else 
+    {
       $over = stristr($query, 'ORDER BY');
       if (!$over) 
       {
@@ -150,7 +155,7 @@ class Doctrine_Connection_Sqlsrv extends Doctrine_Connection_Common
       $start = $offset + 1;
       $end = $offset + $limit;
       $query = "SELECT * FROM ($select ROW_NUMBER() OVER ($over) AS [DOCTRINE_ROWNUM], $query) AS [doctrine_tbl] WHERE [DOCTRINE_ROWNUM] BETWEEN $start AND $end";
-
+    }
     return $query;
   }
 

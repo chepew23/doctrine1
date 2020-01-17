@@ -134,10 +134,11 @@ END;';
             ++$start;
         }
 
-        $sql[] = $this->createSequenceSql($table, $start);
+        $tableNameCutted = (strlen($table) > 24) ? substr($table, 0, 24) : $table;
+        $sql[] = $this->createSequenceSql($tableNameCutted, $start);
 
-        $sequenceName = $this->conn->formatter->getSequenceName($table);
-        $triggerName  = $this->conn->quoteIdentifier($table . '_AI_PK', true);
+        $sequenceName = $this->conn->formatter->getSequenceName($tableNameCutted);
+        $triggerName  = $this->conn->quoteIdentifier($tableNameCutted . '_AI_PK', true);
         $table = $this->conn->quoteIdentifier($table, true);
         $name  = $this->conn->quoteIdentifier($name, true);
         $sql[] = 'CREATE TRIGGER ' . $triggerName . '
